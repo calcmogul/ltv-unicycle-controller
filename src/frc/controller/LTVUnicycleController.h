@@ -8,10 +8,10 @@
 #include <cmath>
 
 #include <Eigen/Core>
-#include <wpi/interpolating_map.h>
 
-#include "frc/kinematics/ChassisSpeeds.h"
+#include "frc/StateSpaceUtil.h"
 #include "frc/geometry/Pose2d.h"
+#include "frc/kinematics/ChassisSpeeds.h"
 
 namespace frc {
 
@@ -19,9 +19,6 @@ namespace frc {
  * The linear time-varying unicycle controller has a similar form to the LQR,
  * but the model used to compute the controller gain is the nonlinear unicycle
  * model linearized around the drivetrain's current state.
- *
- * This controller is a roughly drop-in replacement for RamseteController with
- * more optimal feedback gains in the "least-squares error" sense.
  *
  * See section 8.9 in Controls Engineering in FRC for a derivation of the
  * control law we used shown in theorem 8.9.1.
@@ -33,12 +30,10 @@ class LTVUnicycleController {
    * desired error tolerances of (0.0625 m, 0.125 m, 2 rad) and default maximum
    * desired control effort of (1 m/s, 2 rad/s).
    *
-   * @param dt Discretization timestep.
-   * @param maxVelocity The maximum velocity for the controller gain lookup
-   *                    table.
-   * @throws std::domain_error if maxVelocity &lt;= 0.
+   * @param dt Discretization timestep in seconds.
    */
-  explicit LTVUnicycleController(double dt, double maxVelocity = 9.0);
+  explicit LTVUnicycleController(double dt)
+      : LTVUnicycleController{{0.0625, 0.125, 2.0}, {1.0, 2.0}, dt} {}
 
   /**
    * Constructs a linear time-varying unicycle controller.
@@ -49,14 +44,11 @@ class LTVUnicycleController {
    *
    * @param Qelems The maximum desired error tolerance for each state.
    * @param Relems The maximum desired control effort for each input.
-   * @param dt     Discretization timestep.
-   * @param maxVelocity The maximum velocity for the controller gain lookup
-   *                    table.
-   * @throws std::domain_error if maxVelocity <= 0 m/s or >= 15 m/s.
+   * @param dt     Discretization timestep in seconds.
    */
   LTVUnicycleController(const std::array<double, 3>& Qelems,
-                        const std::array<double, 2>& Relems, double dt,
-                        double maxVelocity = 9.0);
+                        const std::array<double, 2>& Relems, double dt)
+      : m_Q{MakeCostMatrix(Qelems)}, m_R{MakeCostMatrix(Relems)}, m_dt{dt} {}
 
   /**
    * Move constructor.
@@ -113,8 +105,11 @@ class LTVUnicycleController {
   void SetEnabled(bool enabled) { m_enabled = enabled; }
 
  private:
-  // LUT from drivetrain linear velocity to LQR gain
-  wpi::interpolating_map<double, Eigen::Matrix<double, 2, 3>> m_table;
+  // LQR cost matrices
+  Eigen::Matrix<double, 3, 3> m_Q;
+  Eigen::Matrix<double, 2, 2> m_R;
+
+  double m_dt;
 
   Pose2d m_poseError;
   Pose2d m_poseTolerance;

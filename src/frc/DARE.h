@@ -30,7 +30,7 @@ namespace frc {
  * @param A The system matrix.
  * @param B The input matrix.
  * @param Q The state cost matrix.
- * @param R_llt The LLT decomposition of the input cost matrix.
+ * @param R The input cost matrix.
  * @return Solution to the DARE.
  */
 template <int States, int Inputs>
@@ -38,7 +38,7 @@ Eigen::Matrix<double, States, States> DARE(
     const Eigen::Matrix<double, States, States>& A,
     const Eigen::Matrix<double, States, Inputs>& B,
     const Eigen::Matrix<double, States, States>& Q,
-    const Eigen::LLT<Eigen::Matrix<double, Inputs, Inputs>>& R_llt) {
+    const Eigen::Matrix<double, Inputs, Inputs>& R) {
   using StateMatrix = Eigen::Matrix<double, States, States>;
 
   // Implements SDA algorithm on p. 5 of [1] (initial A, G, H are from (4)).
@@ -52,7 +52,7 @@ Eigen::Matrix<double, States, States> DARE(
   // G₀ = BR⁻¹Bᵀ
   // H₀ = Q
   StateMatrix A_k = A;
-  StateMatrix G_k = B * R_llt.solve(B.transpose());
+  StateMatrix G_k = B * R.llt().solve(B.transpose());
   StateMatrix H_k;
   StateMatrix H_k1 = Q;
 
