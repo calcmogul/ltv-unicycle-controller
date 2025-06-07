@@ -17,5 +17,5 @@ set_property(SOURCE ${cpp_src} PROPERTY COMPILE_FLAGS "-Wno-unused")
 add_executable(ltv-unicycle-controller ${cpp_src})
 
 target_compile_options(ltv-unicycle-controller PRIVATE -Wall -Wextra -pedantic -Werror)
-target_compile_features(ltv-unicycle-controller PUBLIC cxx_std_14)
+target_compile_features(ltv-unicycle-controller PUBLIC cxx_std_11)
 target_include_directories(ltv-unicycle-controller PRIVATE src eigen3)
