@@ -10,12 +10,30 @@ if(NOT CMAKE_EXPORT_COMPILE_COMMANDS)
     set(CMAKE_EXPORT_COMPILE_COMMANDS "YES" CACHE STRING "" FORCE)
 endif()
 
-project(ltv-unicycle-controller)
+project(ltv-drivetrain-controllers)
 
-file(GLOB_RECURSE cpp_src src/*.cpp)
-set_property(SOURCE ${cpp_src} PROPERTY COMPILE_FLAGS "-Wno-unused")
-add_executable(ltv-unicycle-controller ${cpp_src})
+file(GLOB_RECURSE frc_cpp_src src/frc/*.cpp)
 
-target_compile_options(ltv-unicycle-controller PRIVATE -Wall -Wextra -pedantic -Werror)
-target_compile_features(ltv-unicycle-controller PUBLIC cxx_std_11)
+add_executable(
+    ltv-diff-drive-controller
+    ${frc_cpp_src}
+    src/ltv_diff_drive_controller_main.cpp
+)
+target_compile_options(
+    ltv-diff-drive-controller
+    PRIVATE -Wall -Wextra -pedantic -Werror
+)
+target_compile_features(ltv-diff-drive-controller PUBLIC cxx_std_14)
+target_include_directories(ltv-diff-drive-controller PRIVATE src eigen3)
+
+add_executable(
+    ltv-unicycle-controller
+    ${frc_cpp_src}
+    src/ltv_unicycle_controller_main.cpp
+)
+target_compile_options(
+    ltv-unicycle-controller
+    PRIVATE -Wall -Wextra -pedantic -Werror
+)
+target_compile_features(ltv-unicycle-controller PUBLIC cxx_std_14)
 target_include_directories(ltv-unicycle-controller PRIVATE src eigen3)

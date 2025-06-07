@@ -1,5 +1,5 @@
-# LTV unicycle controller
+# LTV drivetrain controllers
 
-LTV unicycle controller implementation in C++14.
+Linear time-varying drivetrain controller implementations in C++14.
 
 Eigen 3.4.0 is bundled.
